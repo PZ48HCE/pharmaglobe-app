@@ -148,7 +148,6 @@ with st.sidebar:
 # Header Area
 st.markdown('<h1 style="margin-top:-20px;"><span class="gradient-text">PharmaGlobe Dashboard</span></h1>', unsafe_allow_html=True)
 
-# ----------------- MENU: REGIONAL DIRECTORY -----------------
 if menu == "🗺️ Regional Directory":
     st.markdown("### 🗺️ Local Daily-Use & Common OTC Medicines")
     st.markdown("Browse standard household over-the-counter medications based on your country. Helps you find local equivalents of medicines you use at home.")
@@ -157,21 +156,19 @@ if menu == "🗺️ Regional Directory":
     
     # Filter Categories
     categories = med.get_categories(country=country_filter)
-    selected_category = st.tabs(["All Categories"] + categories)
     
-    # Tab handling
-    for i, tab in enumerate([st] + list(selected_category)):
-        if i == 0:
-            # First tab represents "All"
-            continue
-            
-        current_cat = categories[i - 1]
-        with selected_category[i - 1]:
-            meds = med.get_medicines_by_filters(country=country_filter, category=current_cat)
+    if not categories:
+        st.info("Select a country from the sidebar to browse local medicines.")
+    else:
+        # Create tabs
+        tabs = st.tabs(["All Categories"] + categories)
+        
+        # 1. "All Categories" Tab (Index 0)
+        with tabs[0]:
+            meds = med.get_medicines_by_filters(country=country_filter)
             if not meds:
-                st.info(f"No medicines curated for {selected_country} under category {current_cat}.")
+                st.info(f"No medicines curated.")
             else:
-                # Render in grid
                 st.markdown('<div class="med-grid">', unsafe_allow_html=True)
                 cols = st.columns(3)
                 for idx, item in enumerate(meds):
@@ -179,20 +176,20 @@ if menu == "🗺️ Regional Directory":
                         st.markdown(render_medicine_card(item, idx), unsafe_allow_html=True)
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-    # If the user selected the first tab (or just viewing all in standard layout)
-    if selected_country != "Global (All)" and not categories:
-        st.info("Select a country from the sidebar to browse local medicines.")
-    elif selected_country == "Global (All)":
-        st.info("Browse medicines by selecting a specific country in the sidebar, or search for a product under the 'Search & Compare' tab.")
-        
-        # Display overall directory in grid
-        meds = med.get_medicines_by_filters()
-        st.markdown('<div class="med-grid">', unsafe_allow_html=True)
-        cols = st.columns(3)
-        for idx, item in enumerate(meds):
-            with cols[idx % 3]:
-                st.markdown(render_medicine_card(item, idx), unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        # 2. Specific Category Tabs (Index 1 to len(categories))
+        for i, current_cat in enumerate(categories):
+            with tabs[i + 1]:
+                meds = med.get_medicines_by_filters(country=country_filter, category=current_cat)
+                if not meds:
+                    st.info(f"No medicines curated under category {current_cat}.")
+                else:
+                    st.markdown('<div class="med-grid">', unsafe_allow_html=True)
+                    cols = st.columns(3)
+                    for idx, item in enumerate(meds):
+                        with cols[idx % 3]:
+                            st.markdown(render_medicine_card(item, idx), unsafe_allow_html=True)
+                    st.markdown('</div>', unsafe_allow_html=True)
+
 
 # ----------------- MENU: SEARCH & COMPARE -----------------
 elif menu == "🔍 Search & Compare":
