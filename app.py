@@ -1,9 +1,10 @@
 import streamlit as st
 from PIL import Image
 import os
-import med_database
+import med_database as med
 import openfda_helper
 import barcode_helper
+
 import ai_helper
 
 # Set Page Config
