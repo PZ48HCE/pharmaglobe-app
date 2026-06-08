@@ -95,6 +95,8 @@ def lookup_barcode_in_databases(barcode):
                     item = items[0]
                     product_name = item.get("title")
                     brand = item.get("brand")
+                    images = item.get("images", [])
+                    image_url = images[0] if images else None
                     upc_metadata = {
                         "brand_name": brand or "Unknown",
                         "generic_name": product_name or "Unknown Product",
@@ -108,7 +110,8 @@ def lookup_barcode_in_databases(barcode):
                         "route": "topical / oral / general",
                         "product_type": item.get("category") or "OTC Product",
                         "price": f"Avg: {item.get('lowest_recorded_price', '')} - {item.get('highest_recorded_price', '')}" if item.get('lowest_recorded_price') else "Price varies",
-                        "shop_link": f"https://www.google.com/search?q={urllib.parse.quote(product_name)}" if product_name else ""
+                        "shop_link": f"https://www.google.com/search?q={urllib.parse.quote(product_name)}" if product_name else "",
+                        "image_url": image_url
                     }
                     break
         except Exception as e:
@@ -124,6 +127,8 @@ def lookup_barcode_in_databases(barcode):
         if local_matches:
             match = local_matches[0]
             match["resolved_via"] = f"Local DB Match (via Barcode Product Name: {product_name})"
+            if upc_metadata and upc_metadata.get("image_url"):
+                match["image_url"] = upc_metadata["image_url"]
             return match
             
         # 4. If not in local DB, try to search OpenFDA by the resolved brand or title
@@ -136,12 +141,15 @@ def lookup_barcode_in_databases(barcode):
             res["resolved_via"] = f"OpenFDA Label Match (via Barcode Product Name: {product_name})"
             if upc_metadata and upc_metadata.get("price"):
                 res["price"] = upc_metadata["price"]
+            if upc_metadata and upc_metadata.get("image_url"):
+                res["image_url"] = upc_metadata["image_url"]
             return res
             
         # 5. Return general UPC item registry metadata if no FDA/Local match is found
         if upc_metadata:
             upc_metadata["resolved_via"] = "Global Barcode Registry (UPCitemdb)"
             return upc_metadata
+
             
     return None
 import urllib.parse

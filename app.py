@@ -6,8 +6,19 @@ import openfda_helper
 import barcode_helper
 
 import ai_helper
+import requests
+
+# Network status check
+@st.cache_data(ttl=30)
+def check_network_status():
+    try:
+        requests.get("https://api.fda.gov", timeout=1.5)
+        return True
+    except Exception:
+        return False
 
 # Set Page Config
+
 st.set_page_config(
     page_title="PharmaGlobe - Global Medicine Directory",
     page_icon="💊",
@@ -47,6 +58,9 @@ def render_medicine_card(med, index=0):
     country = med.get("country", "")
     country_html = f'<div class="country-badge">📍 {country}</div>' if country else ""
     
+    image_url = med.get("image_url", "")
+    image_html = f'<div style="text-align: center; margin-top: 10px; margin-bottom: 15px;"><img src="{image_url}" style="max-height: 160px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08);"></div>' if image_url else ""
+    
     uses_list = med.get("uses", [])
     uses_html = ""
     if isinstance(uses_list, list):
@@ -76,6 +90,7 @@ def render_medicine_card(med, index=0):
     <div class="glass-card">
         {resolved_html}
         {country_html}
+        {image_html}
         <h3 style="margin: 0 0 6px 0; font-size: 1.35rem; font-family: 'Outfit'; color: #ffffff;">{med['name']}</h3>
         <div style="font-size: 0.9rem; color: rgba(255,255,255,0.6); margin-bottom: 12px; font-style: italic;">
             Active Ingredient: {med.get('generic_name', med.get('active_ingredients', 'Not Specified'))}
@@ -100,6 +115,7 @@ def render_medicine_card(med, index=0):
     </div>
     """
     return card_html
+
 
 # Sidebar Header & Nav
 with st.sidebar:
@@ -131,6 +147,13 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### ℹ️ App Information")
+    
+    # Network status indicator
+    is_online = check_network_status()
+    status_color = "🟢" if is_online else "🔴"
+    status_text = "Online (API Connected)" if is_online else "Offline (Local Database)"
+    st.markdown(f"**Connection:** {status_color} {status_text}")
+    
     st.markdown(
         """
         **PharmaGlobe** provides a comprehensive database of daily-use over-the-counter (OTC) medicines across different countries.
@@ -138,6 +161,7 @@ with st.sidebar:
         Uses public **OpenFDA** and product barcode APIs for real-time drug label resolution.
         """
     )
+
     
     # Optional API Key input (hidden input style)
     api_key_status = "Inactive"
