@@ -18,7 +18,7 @@ st.set_page_config(
 def local_css(file_name):
     if os.path.exists(file_name):
         with open(file_name, "r") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allowed_html=True)
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
     else:
         st.warning(f"CSS file {file_name} not found.")
 
@@ -102,8 +102,8 @@ def render_medicine_card(med, index=0):
 
 # Sidebar Header & Nav
 with st.sidebar:
-    st.markdown('<h1 class="app-title" style="font-size: 1.8rem; margin-bottom: 5px;"><span class="gradient-text">PharmaGlobe</span></h1>', unsafe_allowed_html=True)
-    st.markdown('<div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 25px;">Global Medicine Lookup & Scanner</div>', unsafe_allowed_html=True)
+    st.markdown('<h1 class="app-title" style="font-size: 1.8rem; margin-bottom: 5px;"><span class="gradient-text">PharmaGlobe</span></h1>', unsafe_allow_html=True)
+    st.markdown('<div style="font-size: 0.85rem; color: rgba(255,255,255,0.5); margin-bottom: 25px;">Global Medicine Lookup & Scanner</div>', unsafe_allow_html=True)
     
     st.markdown("### 🗺️ Select Location")
     countries = med.get_countries()
@@ -145,7 +145,7 @@ with st.sidebar:
     st.markdown(f"**OpenFDA Key:** `{api_key_status}`")
 
 # Header Area
-st.markdown('<h1 style="margin-top:-20px;"><span class="gradient-text">PharmaGlobe Dashboard</span></h1>', unsafe_allowed_html=True)
+st.markdown('<h1 style="margin-top:-20px;"><span class="gradient-text">PharmaGlobe Dashboard</span></h1>', unsafe_allow_html=True)
 
 # ----------------- MENU: REGIONAL DIRECTORY -----------------
 if menu == "🗺️ Regional Directory":
@@ -171,12 +171,12 @@ if menu == "🗺️ Regional Directory":
                 st.info(f"No medicines curated for {selected_country} under category {current_cat}.")
             else:
                 # Render in grid
-                st.markdown('<div class="med-grid">', unsafe_allowed_html=True)
+                st.markdown('<div class="med-grid">', unsafe_allow_html=True)
                 cols = st.columns(3)
                 for idx, item in enumerate(meds):
                     with cols[idx % 3]:
-                        st.markdown(render_medicine_card(item, idx), unsafe_allowed_html=True)
-                st.markdown('</div>', unsafe_allowed_html=True)
+                        st.markdown(render_medicine_card(item, idx), unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
     # If the user selected the first tab (or just viewing all in standard layout)
     if selected_country != "Global (All)" and not categories:
@@ -186,12 +186,12 @@ if menu == "🗺️ Regional Directory":
         
         # Display overall directory in grid
         meds = med.get_medicines_by_filters()
-        st.markdown('<div class="med-grid">', unsafe_allowed_html=True)
+        st.markdown('<div class="med-grid">', unsafe_allow_html=True)
         cols = st.columns(3)
         for idx, item in enumerate(meds):
             with cols[idx % 3]:
-                st.markdown(render_medicine_card(item, idx), unsafe_allowed_html=True)
-        st.markdown('</div>', unsafe_allowed_html=True)
+                st.markdown(render_medicine_card(item, idx), unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------- MENU: SEARCH & COMPARE -----------------
 elif menu == "🔍 Search & Compare":
@@ -227,7 +227,7 @@ elif menu == "🔍 Search & Compare":
                     st.info("No matching medicines in the local curated database.")
                 else:
                     for idx, m in enumerate(local_results):
-                        st.markdown(render_medicine_card(m, idx), unsafe_allowed_html=True)
+                        st.markdown(render_medicine_card(m, idx), unsafe_allow_html=True)
                         
             with col2:
                 st.markdown("#### Live OpenFDA Drug Labels")
@@ -249,26 +249,26 @@ elif menu == "🔍 Search & Compare":
                             "resolved_via": "OpenFDA API",
                             "country": "USA (FDA)"
                         }
-                        st.markdown(render_medicine_card(m_card, idx + 100), unsafe_allowed_html=True)
+                        st.markdown(render_medicine_card(m_card, idx + 100), unsafe_allow_html=True)
                         
         elif "Local" in search_source:
             st.markdown("#### Curated Regional Medicines")
             if not local_results:
                 st.info("No matching medicines found in the curated database.")
             else:
-                st.markdown('<div class="med-grid">', unsafe_allowed_html=True)
+                st.markdown('<div class="med-grid">', unsafe_allow_html=True)
                 cols = st.columns(3)
                 for idx, m in enumerate(local_results):
                     with cols[idx % 3]:
-                        st.markdown(render_medicine_card(m, idx), unsafe_allowed_html=True)
-                st.markdown('</div>', unsafe_allowed_html=True)
+                        st.markdown(render_medicine_card(m, idx), unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
                 
         else:  # OpenFDA only
             st.markdown("#### Live OpenFDA Drug Labels")
             if not fda_results:
                 st.info("No matching drug labels found in OpenFDA.")
             else:
-                st.markdown('<div class="med-grid">', unsafe_allowed_html=True)
+                st.markdown('<div class="med-grid">', unsafe_allow_html=True)
                 cols = st.columns(3)
                 for idx, m in enumerate(fda_results):
                     m_card = {
@@ -285,8 +285,8 @@ elif menu == "🔍 Search & Compare":
                         "country": "USA (FDA)"
                     }
                     with cols[idx % 3]:
-                        st.markdown(render_medicine_card(m_card, idx), unsafe_allowed_html=True)
-                st.markdown('</div>', unsafe_allowed_html=True)
+                        st.markdown(render_medicine_card(m_card, idx), unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
 
 # ----------------- MENU: BARCODE SCANNER -----------------
 elif menu == "📸 Barcode Scanner":
@@ -365,11 +365,11 @@ elif menu == "📸 Barcode Scanner":
                 card_data["warnings"] = [card_data["warnings"]]
                 
             # Render card
-            st.markdown(render_medicine_card(card_data, index=999), unsafe_allowed_html=True)
+            st.markdown(render_medicine_card(card_data, index=999), unsafe_allow_html=True)
         else:
             st.error(f"Could not resolve barcode `{barcode_to_lookup}` in any database.")
             st.markdown("Would you like to search the web directly for this barcode?")
-            st.markdown(f'<a href="https://www.google.com/search?q={barcode_to_lookup}" target="_blank" class="btn-action">🔍 Google Search Barcode</a>', unsafe_allowed_html=True)
+            st.markdown(f'<a href="https://www.google.com/search?q={barcode_to_lookup}" target="_blank" class="btn-action">🔍 Google Search Barcode</a>', unsafe_allow_html=True)
 
 # ----------------- MENU: AI ASSISTANT -----------------
 elif menu == "💬 AI Assistant":
